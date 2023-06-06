@@ -26,6 +26,8 @@ typedef struct s_exec_context
 	pid_t			pid;
 	char			**cmd_paths;
 	int is; //unset PATH
+	int pipe_num;
+	int **pipe_fd;
 
 }					t_exec_context;
 
@@ -128,12 +130,6 @@ void				handle_heredoc(t_doubly_lst *old_list, t_doubly_lst *node,
 char				*remove_quotes(char *str);
 /* expand token*/
 char				*expand_token(char *token, t_exec_context *exContext);
-/* check syntax for every node in list*/
-int					check_syntax(t_doubly_lst *head);
-
-/* convert list o have args and in , out*/
-t_doubly_lst	*convert_list_format(t_doubly_lst *list,
-									t_exec_context *exContext);
 
 ////////////////////////////////////* Builtins*////////////////////////////////////
 void				ft_env(t_exec_context *exContext);
@@ -160,4 +156,6 @@ void				ft_execute_child(t_exec_context *exContext);
 void				execution(t_exec_context *exContext);
 /*fuction that duplicate in and out to stdin and stdout*/
 void				ft_dup(t_exec_context *exContext);
+/*fuction that close file descriptor*/
+void ft_close_fd(t_exec_context *exContext);
 #endif
