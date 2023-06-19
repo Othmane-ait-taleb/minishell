@@ -6,7 +6,7 @@
 /*   By: otait-ta <otait-ta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/02 16:48:35 by hasserao          #+#    #+#             */
-/*   Updated: 2023/06/18 23:15:58 by otait-ta         ###   ########.fr       */
+/*   Updated: 2023/06/19 14:24:10 by otait-ta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,6 @@ void	execution(t_exec_context *ex_context)
 	tmp = ex_context;
 	ft_ign_signals();
 	size = d_lstsize(ex_context->cmds);
-	ex_context->pipe_num = size - 1;
 	if (size == 1)
 		exec_single(ex_context);
 	else
