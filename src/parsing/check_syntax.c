@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   check_syntax.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hasserao <hasserao@student.42.fr>          +#+  +:+       +#+        */
+/*   By: otait-ta <otait-ta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/04 17:48:18 by otait-ta          #+#    #+#             */
-/*   Updated: 2023/06/17 19:24:14 by hasserao         ###   ########.fr       */
+/*   Updated: 2023/06/19 16:04:29 by otait-ta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int	check_syntax(t_doubly_lst *head)
 {
 	while (head)
 	{
-		if (start_with(head->cmd, "!)") || end_with(head->cmd, "!)"))
+		if (start_with(head->cmd, "!)"))
 		{
 			put_error("syntax error near unexpected token `", "newline", 258);
 			return (1);
