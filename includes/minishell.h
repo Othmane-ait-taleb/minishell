@@ -6,7 +6,7 @@
 /*   By: otait-ta <otait-ta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/18 22:56:43 by hasserao          #+#    #+#             */
-/*   Updated: 2023/06/19 14:38:46 by otait-ta         ###   ########.fr       */
+/*   Updated: 2023/06/19 15:51:06 by otait-ta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <unistd.h>
+# include <limits.h>
 
 extern int			g_exit_status;
 

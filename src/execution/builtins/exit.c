@@ -6,7 +6,7 @@
 /*   By: otait-ta <otait-ta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/01 11:07:09 by hasserao          #+#    #+#             */
-/*   Updated: 2023/06/18 23:16:40 by otait-ta         ###   ########.fr       */
+/*   Updated: 2023/06/19 15:57:49 by otait-ta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void	ft_exit(char **arg)
 		ft_putstr_fd("exit\n", 1);
 		exit(0);
 	}
-	if (arg[1] && !parse_arg(arg[1]))
+	if ((arg[1] && !parse_arg(arg[1])) ||  ft_atoi(arg[1]) == 0)
 	{
 		ft_putstr_fd("exit\n", 1);
 		put_error_ex("minishell: exit: ", arg[1],
@@ -61,7 +61,7 @@ void	ft_exit(char **arg)
 	}
 	else
 	{
-		ft_putstr_fd("exit\n", 1);
-		exit(ft_atoi(*arg));
+		g_exit_status = ft_atoi(arg[1]);
+		exit(g_exit_status);
 	}
 }
