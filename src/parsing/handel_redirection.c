@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   handel_redirection.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: otait-ta <otait-ta@student.42.fr>          +#+  +:+       +#+        */
+/*   By: hasserao <hasserao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/11 15:01:03 by otait-ta          #+#    #+#             */
-/*   Updated: 2023/06/09 21:03:40 by otait-ta         ###   ########.fr       */
+/*   Updated: 2023/06/17 19:32:12 by hasserao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,8 @@ char	*get_dir(char *path)
 	return (dir);
 }
 
-void	handle_input(t_doubly_lst *old_list, t_doubly_lst *node)
+void	handle_input(t_exec_context *ex_context, t_doubly_lst *old_list,
+		t_doubly_lst *node)
 {
 	int		fd;
 	char	*path;
@@ -41,20 +42,26 @@ void	handle_input(t_doubly_lst *old_list, t_doubly_lst *node)
 	if (fd == -1)
 		return (put_error("minishell: No such file or directory ", "", 1));
 	node->in = fd;
+	add_fd(ex_context, fd);
 }
-void	handle_output(t_doubly_lst *old_list, t_doubly_lst *node)
+
+void	handle_output(t_exec_context *ex_context, t_doubly_lst *old_list,
+		t_doubly_lst *node)
 {
 	char		*path;
 	char		*dir;
-	struct stat	fileStat;
+	struct stat	file_stat;
 
 	path = old_list->next->cmd;
-	stat(path, &fileStat);
-	if (S_ISDIR(fileStat.st_mode))
+	stat(path, &file_stat);
+	if (*path == '\0')
+		return (put_error("minishell: No such file or directory: ", path, 1));
+	else if (S_ISDIR(file_stat.st_mode))
 		return (put_error_ex("minishell:", path, ": is a directory\n", 1));
 	else if (ft_strchr(path, '/'))
 	{
 		dir = get_dir(path);
+		ft_printf("dir = %s\n", dir);
 		if (access(dir, F_OK) == -1)
 		{
 			put_error("minishell: No such file or directory: ", path, 1);
@@ -64,17 +71,22 @@ void	handle_output(t_doubly_lst *old_list, t_doubly_lst *node)
 	else if (access(path, W_OK) == -1 && access(path, F_OK) == 0)
 		return (put_error("minishell: permission denied: ", path, 126));
 	node->out = open(path, O_CREAT | O_WRONLY | O_TRUNC, 0666);
+	add_fd(ex_context, node->out);
 }
-void	handle_append(t_doubly_lst *old_list, t_doubly_lst *node)
+
+void	handle_append(t_exec_context *ex_context, t_doubly_lst *old_list,
+		t_doubly_lst *node)
 {
 	char		*path;
 	char		*dir;
-	struct stat	fileStat;
+	struct stat	file_stat;
 
 	path = old_list->next->next->cmd;
-	stat(path, &fileStat);
-	if (S_ISDIR(fileStat.st_mode))
+	stat(path, &file_stat);
+	if (S_ISDIR(file_stat.st_mode))
 		return (put_error("minishell: is a directory: ", path, 1));
+	else if (*path == '\0')
+		return (put_error("minishell: No such file or directory: ", path, 1));
 	else if (ft_strchr(path, '/'))
 	{
 		dir = get_dir(path);
@@ -87,4 +99,5 @@ void	handle_append(t_doubly_lst *old_list, t_doubly_lst *node)
 	else if (access(path, W_OK) == -1 && access(path, F_OK) == 0)
 		return (put_error("minishell: permission denied: ", path, 126));
 	node->out = open(path, O_CREAT | O_WRONLY | O_APPEND, 0666);
+	add_fd(ex_context, node->out);
 }

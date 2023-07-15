@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hasserao <hasserao@student.42.fr>          +#+  +:+       +#+        */
+/*   By: otait-ta <otait-ta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/01 11:07:12 by hasserao          #+#    #+#             */
-/*   Updated: 2023/06/14 20:53:51 by hasserao         ###   ########.fr       */
+/*   Updated: 2023/06/19 13:24:10 by otait-ta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,10 +51,8 @@ int	first_char(char *arg)
 
 int	_export_parse(char *arg)
 {
-	int		j;
-	char	*alpha;
+	int	j;
 
-	alpha = ft_alpha();
 	if (first_char(arg) == 1)
 		return (1);
 	j = 1;
@@ -73,24 +71,24 @@ int	_export_parse(char *arg)
 	return (0);
 }
 
-void	ft_export(t_exec_context *exContext)
+void	ft_export(t_exec_context *ex_context)
 {
 	t_env	*copy;
 	int		i;
 
-	if (count_matrix(exContext->cmds->args) > 1)
+	if (count_matrix(ex_context->cmds->args) > 1)
 	{
 		i = 1;
-		while (exContext->cmds->args[i])
+		while (ex_context->cmds->args[i])
 		{
-			if (!_export_parse(exContext->cmds->args[i]))
-				_export_variable(exContext->cmds->args[i], exContext->env);
+			if (!_export_parse(ex_context->cmds->args[i]))
+				_export_variable(ex_context->cmds->args[i], ex_context->env);
 			i++;
 		}
 	}
 	else
 	{
-		copy = copy_env_list(exContext);
+		copy = copy_env_list(ex_context);
 		print_export(copy);
 		free_env(&copy);
 	}

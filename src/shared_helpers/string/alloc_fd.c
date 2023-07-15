@@ -1,23 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_isalpha.c                                       :+:      :+:    :+:   */
+/*   alloc_fd.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: otait-ta <otait-ta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/24 11:34:10 by hasserao          #+#    #+#             */
-/*   Updated: 2023/06/18 23:03:42 by otait-ta         ###   ########.fr       */
+/*   Created: 2023/06/18 22:44:25 by otait-ta          #+#    #+#             */
+/*   Updated: 2023/06/18 22:44:25 by otait-ta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../../../includes/minishell.h"
 
-int	ft_isalpha(int c)
+int	*alloc_fd(int fd)
 {
-	return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+	int	*fd_tab;
+
+	fd_tab = malloc(sizeof(int));
+	if (!fd_tab)
+		return (0);
+	*fd_tab = fd;
+	return (fd_tab);
 }
 
-char	*ft_alpha(void)
+void	add_fd(t_exec_context *ex_context, int fd)
 {
-	return ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_");
+	t_list	*fd_node;
+
+	fd_node = ft_lstnew(alloc_fd(fd));
+	ft_lstadd_back(&ex_context->fds, fd_node);
 }

@@ -3,32 +3,34 @@
 /*                                                        :::      ::::::::   */
 /*   exec.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hasserao <hasserao@student.42.fr>          +#+  +:+       +#+        */
+/*   By: otait-ta <otait-ta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/02 16:48:35 by hasserao          #+#    #+#             */
-/*   Updated: 2023/06/15 17:27:05 by hasserao         ###   ########.fr       */
+/*   Updated: 2023/06/19 14:24:10 by otait-ta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-static void	one_cmd(t_exec_context *exContext)
+static void	one_cmd(t_exec_context *ex_context)
 {
-	ft_get_path(exContext);
-	exContext->pid = fork();
-	if (exContext->pid == -1)
+	ft_get_path(ex_context);
+	ex_context->pid = fork();
+	if (ex_context->pid == -1)
 		ft_msg_error("fork", 1);
-	if (exContext->pid == 0)
+	if (ex_context->pid == 0)
 	{
-		if (exContext->cmds->next || exContext->cmds->cmd[0] != '\0')
-			ft_dup(exContext->cmds);
-		if (exContext->cmds->cmd[0] != '\0')
-			ft_execute_child(exContext);
+		ft_signals();
+		if (ex_context->cmds->next || ex_context->cmds->cmd[0] != '\0')
+			ft_dup(ex_context->cmds);
+		if (ex_context->cmds->cmd[0] != '\0')
+			ft_execute_child(ex_context);
 		else
 		{
-			if (exContext->cmds->in == 0 && exContext->cmds->out == 1)
+			if (ex_context->cmds->in == 0 && ex_context->cmds->out == 1
+				&& ex_context->cmds->is_heredoc == 0)
 			{
-				put_error_ex("minishell: ", exContext->cmds->cmd,
+				put_error_ex("minishell: ", ex_context->cmds->cmd,
 					": command not found\n", 127);
 			}
 			exit(g_exit_status);
@@ -36,7 +38,7 @@ static void	one_cmd(t_exec_context *exContext)
 	}
 }
 
-static int	mutiple_cmd(t_exec_context *exContext, int *k)
+static int	mutiple_cmd(t_exec_context *ex_context, int *k)
 {
 	int	end[2];
 	int	pid;
@@ -45,9 +47,14 @@ static int	mutiple_cmd(t_exec_context *exContext, int *k)
 		ft_msg_error("pipe", 1);
 	pid = fork();
 	if (pid == -1)
+	{
 		ft_msg_error("fork", 1);
+	}
 	if (pid == 0)
-		ft_child_process(exContext, k, end);
+	{
+		ft_signals();
+		ft_child_process(ex_context, k, end);
+	}
 	else
 	{
 		if (*k)
@@ -56,61 +63,66 @@ static int	mutiple_cmd(t_exec_context *exContext, int *k)
 		close(end[1]);
 		close(end[0]);
 	}
+	add_fd(ex_context, *k);
 	return (pid);
 }
 
-static void	exec_single(t_exec_context *exContext)
+void	update_underscore(t_exec_context *ex_context)
+{
+	if (!(ex_context->cmds->next))
+	{
+		update_env_elem(ex_context->env, "_",
+			last_element_matrix(ex_context->cmds->args));
+		free_matrix(ex_context->env->env_array);
+		ex_context->env->env_array = env_to_matrix(ex_context->env->first);
+	}
+}
+
+static void	exec_single(t_exec_context *ex_context)
 {
 	int	fdout;
 	int	fdin;
 
-	if (is_builtin(exContext->cmds->cmd))
+	update_underscore(ex_context);
+	if (is_builtin(ex_context->cmds->cmd))
 	{
 		fdout = dup(1);
 		fdin = dup(0);
-		ft_dup(exContext->cmds);
-		exec_builtins(exContext);
+		ft_dup(ex_context->cmds);
+		exec_builtins(ex_context);
 		dup2(fdout, 1);
 		dup2(fdin, 0);
 	}
 	else
 	{
-		one_cmd(exContext);
-		wait(NULL);
-		free_matrix(exContext->cmd_paths);
+		one_cmd(ex_context);
+		ft_wait(ex_context->pid);
+		free_matrix(ex_context->cmd_paths);
 	}
 }
 
-static void	ft_signals(void)
-{
-	signal(SIGINT, sigint_handler);
-	signal(SIGQUIT, sigquit_handler);
-}
-
-void	execution(t_exec_context *exContext)
+void	execution(t_exec_context *ex_context)
 {
 	int				size;
 	t_exec_context	*tmp;
-	t_doubly_lst	*cmds;
 	int				k;
 	int				pid;
 
 	k = 0;
-	tmp = exContext;
-	cmds = tmp->cmds;
-	ft_signals();
-	size = d_lstsize(exContext->cmds);
-	exContext->pipe_num = size - 1;
+	tmp = ex_context;
+	ft_ign_signals();
+	size = d_lstsize(ex_context->cmds);
 	if (size == 1)
-		exec_single(exContext);
+		exec_single(ex_context);
 	else
 	{
 		while (tmp->cmds)
 		{
+			update_underscore(ex_context);
 			pid = mutiple_cmd(tmp, &k);
 			tmp->cmds = tmp->cmds->next;
 		}
-		waitpid(pid, NULL, 0);
+		ft_wait(pid);
 		while (wait(NULL) != -1)
 			;
 	}
